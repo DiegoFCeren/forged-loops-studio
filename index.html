@@ -83,9 +83,9 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent rounded-full blur-[150px] opacity-20 pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col items-center max-w-4xl mx-auto -mt-6 md:-mt-8">
-            <img src="anvil.png" alt="Forged Loops Logo" class="w-40 h-40 md:w-56 md:h-56 mb-8 logo-invert drop-shadow-2xl" onerror="this.src='https://placehold.co/200x200/transparent/F8F9FA?text=Logo'">
+            <img src="anvil.png" alt="Forged Loops Logo" class="w-52 h-52 md:w-72 md:h-72 mb-6 logo-invert drop-shadow-2xl" onerror="this.src='https://placehold.co/200x200/transparent/F8F9FA?text=Logo'">
             
-            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
+            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tight leading-[1.15] pb-2 -mt-2 mb-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
                 Forged Loops
             </h1>
             
@@ -242,12 +242,15 @@
 
                 gamesGrid.innerHTML = ''; // Clear loading text
 
-                data.forEach((game) => {
-                    if (game.error) {
-                        console.warn(`Skipping place ${game.placeId}: ${game.error}`);
-                        return;
-                    }
+                data
+                    .filter((game) => game.error)
+                    .forEach((game) => console.warn(`Skipping place ${game.placeId}: ${game.error}`));
 
+                const sortedGames = data
+                    .filter((game) => !game.error)
+                    .sort((a, b) => b.playing - a.playing);
+
+                sortedGames.forEach((game) => {
                     totalCCU += game.playing;
                     totalVisits += game.visits;
 
