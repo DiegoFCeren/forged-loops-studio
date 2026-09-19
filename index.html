@@ -207,7 +207,7 @@
         </p>
     </footer>
 
-    <!-- Roblox API Script -->
+<!-- Roblox API Script -->
     <script>
         // 1. ADD YOUR ROBLOX GAME LINKS HERE
         const gameLinks = [
@@ -238,19 +238,25 @@
             }
 
             try {
-                // Get Universe IDs from Place IDs via RoProxy
-                const placeRes = await fetch(`https://games.roproxy.com/v1/games/multiget-place-details?placeIds=${placeIds.join(',')}`);
+                // Usamos corsproxy para saltar la restricción CORS del navegador
+                const proxy = "https://corsproxy.io/?";
+
+                // Get Universe IDs from Place IDs
+                const placeUrl = `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeIds.join(',')}`;
+                const placeRes = await fetch(proxy + encodeURIComponent(placeUrl));
                 if (!placeRes.ok) throw new Error("Failed to fetch universe IDs");
                 const placeData = await placeRes.json();
                 const universeIds = placeData.map(p => p.universeId);
 
                 // Get CCU, Visits, and Name
-                const statsRes = await fetch(`https://games.roproxy.com/v1/games?universeIds=${universeIds.join(',')}`);
+                const statsUrl = `https://games.roblox.com/v1/games?universeIds=${universeIds.join(',')}`;
+                const statsRes = await fetch(proxy + encodeURIComponent(statsUrl));
                 if (!statsRes.ok) throw new Error("Failed to fetch game stats");
                 const statsData = await statsRes.json();
 
                 // Get Thumbnails
-                const thumbsRes = await fetch(`https://thumbnails.roproxy.com/v1/games/icons?universeIds=${universeIds.join(',')}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`);
+                const thumbsUrl = `https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeIds.join(',')}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`;
+                const thumbsRes = await fetch(proxy + encodeURIComponent(thumbsUrl));
                 if (!thumbsRes.ok) throw new Error("Failed to fetch thumbnails");
                 const thumbsData = await thumbsRes.json();
                 
