@@ -209,12 +209,14 @@
 
     <!-- Roblox API Script -->
     <script>
-        // 1. ADD YOUR ROBLOX GAME LINKS HERE
-        const gameLinks = [
-            "https://www.roblox.com/games/6335988339", // Surgery Simulator
-        ];
+        // 1. Your deployed Cloudflare Worker's URL (see worker.js).
+        //    Replace this with the *.workers.dev URL you get after deploying.
+        const WORKER_URL = 'https://forged-loops-stats.YOUR-SUBDOMAIN.workers.dev/stats';
 
-        // ---- Helpers -------------------------------------------------------
+        // 2. ADD YOUR ROBLOX PLACE IDS HERE (just the numeric ID, comma-separated below)
+        const placeIds = [
+            '6335988339', // Surgery Simulator
+        ];
 
         function formatNumber(num) {
             if (num >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -223,90 +225,7 @@
             return num.toString();
         }
 
-        function extractPlaceId(url) {
-            const match = url.match(/\/games\/(\d+)/);
-            return match ? match[1] : null;
-        }
-
-        // Every Roblox stats endpoint is fetched through roproxy first (it's
-        // built for exactly this and works reliably from a browser). If that
-        // ever fails for some reason, we fall back to routing the *official*
-        // roblox.com endpoint through the allorigins relay, so one flaky
-        // service going down doesn't take the whole site with it.
-        async function fetchJsonWithFallback(roproxyUrl, robloxUrl) {
-            try {
-                const res = await fetch(roproxyUrl);
-                if (res.ok) return await res.json();
-                console.warn(`RoProxy responded ${res.status} for ${roproxyUrl}`);
-            } catch (err) {
-                console.warn(`RoProxy request failed for ${roproxyUrl}:`, err);
-            }
-
-            const relayUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(robloxUrl)}`;
-            const res2 = await fetch(relayUrl);
-            if (!res2.ok) throw new Error(`Both RoProxy and the fallback relay failed for ${robloxUrl}`);
-            return await res2.json();
-        }
-
-        // ---- API calls -------------------------------------------------------
-
-        async function getUniverseId(placeId) {
-            const data = await fetchJsonWithFallback(
-                `https://apis.roproxy.com/universes/v1/places/${placeId}/universe`,
-                `https://apis.roblox.com/universes/v1/places/${placeId}/universe`
-            );
-            return data.universeId;
-        }
-
-        async function getGameStats(universeIds) {
-            const idsParam = universeIds.join(',');
-            const data = await fetchJsonWithFallback(
-                `https://games.roproxy.com/v1/games?universeIds=${idsParam}`,
-                `https://games.roblox.com/v1/games?universeIds=${idsParam}`
-            );
-            return data.data; // [{ id, name, playing, visits, ... }, ...]
-        }
-
-        async function getThumbnails(universeIds) {
-            const idsParam = universeIds.join(',');
-            const query = `universeIds=${idsParam}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`;
-            const data = await fetchJsonWithFallback(
-                `https://thumbnails.roproxy.com/v1/games/icons?${query}`,
-                `https://thumbnails.roblox.com/v1/games/icons?${query}`
-            );
-            return data.data; // [{ targetId, imageUrl, ... }, ...]
-        }
-
-        // The batch votes endpoint (games.roproxy.com/v1/games/votes) gets
-        // blocked fairly often, but the per-universe route
-        // (games.roproxy.com/v1/games/{universeId}/votes) is reliable, so we
-        // fetch likes one universe at a time and stitch the results together.
-        async function getVotesMap(universeIds) {
-            const entries = await Promise.all(universeIds.map(async (id) => {
-                try {
-                    const data = await fetchJsonWithFallback(
-                        `https://games.roproxy.com/v1/games/${id}/votes`,
-                        `https://games.roblox.com/v1/games/votes?universeIds=${id}`
-                    );
-                    // The per-universe roproxy route returns { id, upVotes, downVotes } directly.
-                    // The batch roblox.com fallback returns { data: [{ id, upVotes, downVotes }] }.
-                    const vote = Array.isArray(data.data) ? data.data[0] : data;
-                    return vote || null;
-                } catch (err) {
-                    console.warn(`Could not fetch votes for universe ${id}:`, err);
-                    return null;
-                }
-            }));
-
-            const map = {};
-            entries.forEach((v) => { if (v && v.id) map[v.id] = v; });
-            return map;
-        }
-
-        // ---- Rendering -------------------------------------------------------
-
         async function loadGameStats() {
-            const placeIds = gameLinks.map(extractPlaceId).filter((id) => id !== null);
             const gamesGrid = document.getElementById('games-grid');
 
             if (placeIds.length === 0) {
@@ -315,61 +234,34 @@
             }
 
             try {
-                // 1. Resolve Place IDs -> Universe IDs, skipping any that fail
-                const universeIds = (
-                    await Promise.all(
-                        placeIds.map((id) =>
-                            getUniverseId(id).catch((err) => {
-                                console.warn(`Could not resolve universe ID for place ${id}:`, err);
-                                return null;
-                            })
-                        )
-                    )
-                ).filter((id) => id !== null && id !== undefined);
-
-                if (universeIds.length === 0) {
-                    throw new Error('Could not resolve any Universe IDs. Check your game links.');
-                }
-
-                // 2. Fetch stats, thumbnails and votes in parallel
-                const [gameStats, thumbnails, votesMap] = await Promise.all([
-                    getGameStats(universeIds),
-                    getThumbnails(universeIds).catch((err) => {
-                        console.warn('Could not fetch thumbnails:', err);
-                        return [];
-                    }),
-                    getVotesMap(universeIds).catch((err) => {
-                        console.warn('Could not fetch votes:', err);
-                        return {};
-                    }),
-                ]);
-
-                if (!gameStats || gameStats.length === 0) {
-                    throw new Error('Failed to fetch game stats.');
-                }
-
-                const thumbMap = {};
-                thumbnails.forEach((t) => { thumbMap[t.targetId] = t.imageUrl; });
+                const res = await fetch(`${WORKER_URL}?places=${placeIds.join(',')}`);
+                if (!res.ok) throw new Error(`Worker responded with HTTP ${res.status}`);
+                const { data, error } = await res.json();
+                if (error) throw new Error(error);
+                if (!data || data.length === 0) throw new Error('No game data returned.');
 
                 let totalCCU = 0;
                 let totalVisits = 0;
 
                 gamesGrid.innerHTML = ''; // Clear loading text
 
-                gameStats.forEach((game) => {
+                data.forEach((game) => {
+                    if (game.error) {
+                        console.warn(`Skipping place ${game.placeId}: ${game.error}`);
+                        return;
+                    }
+
                     totalCCU += game.playing;
                     totalVisits += game.visits;
 
-                    const thumbUrl = thumbMap[game.id] || 'https://placehold.co/600x400/252830/a855f7?text=No+Image';
+                    const thumbUrl = game.thumbnail || 'https://placehold.co/600x400/252830/a855f7?text=No+Image';
 
-                    const votes = votesMap[game.id];
                     let likeBadge = '';
-                    if (votes && (votes.upVotes + votes.downVotes) > 0) {
-                        const likePercent = Math.round((votes.upVotes / (votes.upVotes + votes.downVotes)) * 100);
+                    if (game.likePercent !== null && game.likePercent !== undefined) {
                         likeBadge = `
                             <div class="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full z-10 flex items-center gap-2 border border-white/10">
                                 <i class="fa-solid fa-thumbs-up text-accent text-sm"></i>
-                                <span class="text-sm font-bold text-white shadow-sm">${likePercent}%</span>
+                                <span class="text-sm font-bold text-white shadow-sm">${game.likePercent}%</span>
                             </div>`;
                     }
 
@@ -403,7 +295,7 @@
                 document.getElementById('total-visits-text').innerText = formatNumber(totalVisits);
 
             } catch (error) {
-                console.error('Error fetching data from Roblox API:', error);
+                console.error('Error fetching data from the stats Worker:', error);
                 gamesGrid.innerHTML = `<p class="text-red-400 col-span-full">Failed to load live game data: ${error.message} (check the browser console for details)</p>`;
             }
         }
