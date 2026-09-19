@@ -1,4 +1,23 @@
 {
-  "updatedAt": null,
-  "data": []
+  "updatedAt": "2026-09-19T17:11:01.183Z",
+  "data": [
+    {
+      "placeId": "6335988339",
+      "universeId": 2343631272,
+      "name": "Surgery Simulator [BETA]",
+      "playing": 0,
+      "visits": 12491,
+      "thumbnail": "https://tr.rbxcdn.com/180DAY-52326522774efe0d7cfdb94e46534678/512/512/Image/Png/noFilter",
+      "likePercent": 61
+    },
+    {
+      "placeId": "107778070777162",
+      "universeId": 10563114921,
+      "name": "Steal An Egg",
+      "playing": 3307037,
+      "visits": 4253098360,
+      "thumbnail": "https://tr.rbxcdn.com/180DAY-cba7c8e29858bdd95488b8bf286fab6b/512/512/Image/Png/noFilter",
+      "likePercent": 93
+    }
+  ]
 }
