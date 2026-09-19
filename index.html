@@ -265,9 +265,13 @@
                             </div>`;
                     }
 
-                    // Dynamically generate the HTML for each UI Frame
-                    const card = document.createElement('div');
-                    card.className = 'game-card bg-obsidian-lighter rounded-2xl overflow-hidden relative flex flex-col border border-white/5 h-[400px]';
+                    // Dynamically generate the HTML for each UI Frame — an <a>
+                    // so clicking a card opens the game's Roblox page in a new tab
+                    const card = document.createElement('a');
+                    card.href = `https://www.roblox.com/games/${game.placeId}`;
+                    card.target = '_blank';
+                    card.rel = 'noopener noreferrer';
+                    card.className = 'game-card bg-obsidian-lighter rounded-2xl overflow-hidden relative flex flex-col border border-white/5 h-[400px] cursor-pointer';
                     card.innerHTML = `
                         <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full z-10 flex items-center gap-2 border border-white/10">
                             <span class="status-dot"></span>
