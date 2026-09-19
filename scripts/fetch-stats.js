@@ -12,11 +12,6 @@ const fs = require('fs');
 const path = require('path');
 
 const PLACE_IDS = [
-  '92371631484540', // 100 Waves later
-  '6063653725', // Mega hide and seek
-  '132495346586140', // Swim league
-  '131322417028955', // Champions
-  '8511615377', // Panik
   '6335988339', // Surgery Simulator
 ];
 
