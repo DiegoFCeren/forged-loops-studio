@@ -207,7 +207,7 @@
         </p>
     </footer>
 
-<!-- Roblox API Script -->
+    <!-- Roblox API Script -->
     <script>
         // 1. ADD YOUR ROBLOX GAME LINKS HERE
         const gameLinks = [
@@ -238,29 +238,35 @@
             }
 
             try {
-                // Usamos corsproxy para saltar la restricción CORS del navegador
+                // Use corsproxy to bypass browser restrictions on the official Roblox API
                 const proxy = "https://corsproxy.io/?";
+                const universeIds = [];
 
-                // Get Universe IDs from Place IDs
-                const placeUrl = `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeIds.join(',')}`;
-                const placeRes = await fetch(proxy + encodeURIComponent(placeUrl));
-                if (!placeRes.ok) throw new Error("Failed to fetch universe IDs");
-                const placeData = await placeRes.json();
-                const universeIds = placeData.map(p => p.universeId);
+                // 1. Convert Place IDs to Universe IDs (Auth-free endpoint)
+                for (const placeId of placeIds) {
+                    const uniUrl = `https://apis.roblox.com/universes/v1/places/${placeId}/universe`;
+                    const uniRes = await fetch(proxy + encodeURIComponent(uniUrl));
+                    if (uniRes.ok) {
+                        const uniData = await uniRes.json();
+                        if (uniData.universeId) universeIds.push(uniData.universeId);
+                    }
+                }
 
-                // Get CCU, Visits, and Name
+                if (universeIds.length === 0) throw new Error("Could not find Universe IDs. Check your game links.");
+
+                // 2. Get CCU, Visits, and Name
                 const statsUrl = `https://games.roblox.com/v1/games?universeIds=${universeIds.join(',')}`;
                 const statsRes = await fetch(proxy + encodeURIComponent(statsUrl));
                 if (!statsRes.ok) throw new Error("Failed to fetch game stats");
                 const statsData = await statsRes.json();
 
-                // Get Thumbnails
+                // 3. Get Thumbnails
                 const thumbsUrl = `https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeIds.join(',')}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`;
                 const thumbsRes = await fetch(proxy + encodeURIComponent(thumbsUrl));
                 if (!thumbsRes.ok) throw new Error("Failed to fetch thumbnails");
                 const thumbsData = await thumbsRes.json();
                 
-                // Map thumbnails by Universe ID for fast lookup
+                // 4. Map thumbnails by Universe ID for fast lookup
                 const thumbMap = {};
                 thumbsData.data.forEach(t => thumbMap[t.targetId] = t.imageUrl);
 
