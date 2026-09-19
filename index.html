@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesselate | Roblox Game Studio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: {
+                            DEFAULT: '#0B0C10',
+                            light: '#1A1C23',
+                            lighter: '#252830'
+                        },
+                        white: '#F8F9FA',
+                        accent: '#a855f7', // Vibrant Purple
+                        accentHover: '#9333ea'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0B0C10;
+            color: #F8F9FA;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .logo-invert {
+            filter: invert(100%) sepia(0%) saturate(7482%) hue-rotate(72deg) brightness(114%) contrast(114%);
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #22c55e; 
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            top: -1.5px; left: -1.5px; right: -1.5px; bottom: -1.5px;
+            border-radius: 50%;
+            background-color: #22c55e;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        .game-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-accent selection:text-white flex flex-col min-h-screen">
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center px-4 py-20 text-center z-10 overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent rounded-full blur-[150px] opacity-20 pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col items-center max-w-4xl mx-auto">
+            <img src="Tessellate icon.png" alt="Tesselate Logo" class="w-32 h-32 md:w-48 md:h-48 mb-8 logo-invert drop-shadow-2xl" onerror="this.src='https://placehold.co/200x200/transparent/F8F9FA?text=Logo'">
+            
+            <h1 class="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
+                Tesselate
+            </h1>
+            
+            <p class="text-2xl md:text-4xl font-medium text-gray-300 mb-12 tracking-wide">
+                Simple. Fun. <span class="text-accent font-bold">Viral.</span>
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+                <a href="#games" class="px-8 py-4 bg-accent hover:bg-accentHover text-white font-bold rounded-xl text-xl transition-colors shadow-lg shadow-accent/20 flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-gamepad"></i> Our Games
+                </a>
+                <a href="#contact" class="px-8 py-4 border-2 border-white hover:bg-white hover:text-obsidian text-white font-bold rounded-xl text-xl transition-colors flex items-center justify-center gap-3">
+                    <i class="fa-regular fa-envelope"></i> Contact Us
+                </a>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+            <i class="fa-solid fa-chevron-down text-3xl"></i>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games" class="py-24 px-4 md:px-8 bg-obsidian-light/50 border-t border-white/5 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Section Header & Recap Stats -->
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                <div>
+                    <h2 class="text-5xl font-bold mb-4">Our Games</h2>
+                    <p class="text-xl text-gray-400">Discover the experiences we've built.</p>
+                </div>
+                
+                <!-- Dynamic Recap Stats Bar -->
+                <div class="flex gap-8 bg-obsidian-lighter px-8 py-6 rounded-2xl border border-white/10 shadow-xl w-full md:w-auto">
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-400 font-semibold uppercase tracking-wider mb-2">Total Visits</span>
+                        <span class="text-3xl font-bold text-white flex items-center gap-3">
+                            <i class="fa-solid fa-users text-accent"></i> 
+                            <span id="total-visits-text">0</span>
+                        </span>
+                    </div>
+                    <div class="w-px bg-white/10"></div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-400 font-semibold uppercase tracking-wider mb-2">Total CCU</span>
+                        <span class="text-3xl font-bold text-white flex items-center gap-3">
+                            <i class="fa-solid fa-tower-broadcast text-green-500"></i> 
+                            <span id="total-ccu-text">0</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Games Grid -->
+            <div id="games-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <p class="text-gray-400 col-span-full">Loading live game stats...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-32 px-4 md:px-8 relative z-10">
+        <div class="max-w-5xl mx-auto text-center">
+            
+            <h2 class="text-5xl font-bold mb-12">Get in Touch</h2>
+            
+            <div class="bg-obsidian-light p-10 rounded-3xl border border-white/5 mb-16 shadow-2xl inline-block text-left max-w-3xl mx-auto relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-accent"></div>
+                <p class="text-xl text-gray-300 leading-relaxed mb-6 font-medium">
+                    We don't fill our games with fluff, nor will we fill this: <span class="text-white">We make fun simple games that go viral: That's it.</span>
+                </p>
+                <p class="text-xl text-accent font-bold">
+                    We understand how roblox works, and create great experiences.
+                </p>
+            </div>
+
+            <!-- Social Links Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                
+                <!-- X (Twitter) -->
+                <a href="https://x.com/AtreyuDev" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center justify-center p-10 bg-obsidian-lighter rounded-3xl border border-white/10 hover:border-accent hover:bg-obsidian transition-all duration-300 hover:-translate-y-2 shadow-lg">
+                    <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-white group-hover:text-accent transition-colors" fill="currentColor" viewBox="0 0 1200 1227">
+                            <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">X</h3>
+                    <p class="text-gray-400 font-medium">@AtreyuDev</p>
+                </a>
+
+                <!-- Roblox Community -->
+                <a href="https://www.roblox.com/communities/35293093" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center justify-center p-10 bg-obsidian-lighter rounded-3xl border border-white/10 hover:border-white hover:bg-obsidian transition-all duration-300 hover:-translate-y-2 shadow-lg">
+                    <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M5.44 0L0 18.56l18.56 5.44L24 5.44 5.44 0zm9.05 15.65l-4.52-1.32 1.32-4.52 4.52 1.32-1.32 4.52z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Community</h3>
+                    <p class="text-gray-400 font-medium">Roblox Group</p>
+                </a>
+
+                <!-- Email -->
+                <a href="mailto:test@tesselatestudio.com" class="group flex flex-col items-center justify-center p-10 bg-obsidian-lighter rounded-3xl border border-white/10 hover:border-white hover:bg-obsidian transition-all duration-300 hover:-translate-y-2 shadow-lg">
+                    <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
+                        <i class="fa-solid fa-envelope text-4xl text-white transition-colors"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Email</h3>
+                    <p class="text-gray-400 font-medium break-all">hello@tesselatestudio.com</p>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-10 text-center border-t border-white/5 bg-obsidian z-10">
+        <p class="text-gray-500 font-medium">
+            &copy; 2026 Tesselate Studio. All rights reserved.
+        </p>
+    </footer>
+
+    <!-- Roblox API Script -->
+    <script>
+        // 1. ADD YOUR ROBLOX GAME LINKS HERE
+        const gameLinks = [
+            "https://www.roblox.com/games/6335988339", // Surgery Simulator
+        ];
+
+        // Format numbers to K, M, B
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+            return num.toString();
+        }
+
+        // Regex to extract Place ID from Roblox URLs
+        function extractPlaceId(url) {
+            const match = url.match(/\/games\/(\d+)/);
+            return match ? match[1] : null;
+        }
+
+        async function loadGameStats() {
+            const placeIds = gameLinks.map(extractPlaceId).filter(id => id !== null);
+            const gamesGrid = document.getElementById('games-grid');
+            
+            if (placeIds.length === 0) {
+                gamesGrid.innerHTML = '<p class="text-gray-400 col-span-full">No games added to the list yet.</p>';
+                return;
+            }
+
+            try {
+                // Get Universe IDs from Place IDs via RoProxy
+                const placeRes = await fetch(`https://games.roproxy.com/v1/games/multiget-place-details?placeIds=${placeIds.join(',')}`);
+                if (!placeRes.ok) throw new Error("Failed to fetch universe IDs");
+                const placeData = await placeRes.json();
+                const universeIds = placeData.map(p => p.universeId);
+
+                // Get CCU, Visits, and Name
+                const statsRes = await fetch(`https://games.roproxy.com/v1/games?universeIds=${universeIds.join(',')}`);
+                if (!statsRes.ok) throw new Error("Failed to fetch game stats");
+                const statsData = await statsRes.json();
+
+                // Get Thumbnails
+                const thumbsRes = await fetch(`https://thumbnails.roproxy.com/v1/games/icons?universeIds=${universeIds.join(',')}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`);
+                if (!thumbsRes.ok) throw new Error("Failed to fetch thumbnails");
+                const thumbsData = await thumbsRes.json();
+                
+                // Map thumbnails by Universe ID for fast lookup
+                const thumbMap = {};
+                thumbsData.data.forEach(t => thumbMap[t.targetId] = t.imageUrl);
+
+                let totalCCU = 0;
+                let totalVisits = 0;
+                
+                gamesGrid.innerHTML = ''; // Clear loading text
+
+                statsData.data.forEach(game => {
+                    totalCCU += game.playing;
+                    totalVisits += game.visits;
+
+                    const thumbUrl = thumbMap[game.id] || 'https://placehold.co/600x400/252830/a855f7?text=No+Image';
+
+                    // Dynamically generate the HTML for each UI Frame
+                    const card = document.createElement('div');
+                    card.className = 'game-card bg-obsidian-lighter rounded-2xl overflow-hidden relative flex flex-col border border-white/5 h-[400px]';
+                    card.innerHTML = `
+                        <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-md px-4 py-2 rounded-full z-10 flex items-center gap-2 border border-white/10">
+                            <span class="status-dot"></span>
+                            <span class="text-sm font-bold text-white shadow-sm">${formatNumber(game.playing)}</span>
+                        </div>
+                        <div class="flex-grow w-full h-full relative group">
+                            <img src="${thumbUrl}" alt="${game.name}" class="absolute inset-0 w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
+                                <h3 class="text-2xl font-bold text-white drop-shadow-md">${game.name}</h3>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full bg-white text-obsidian px-6 py-4 flex justify-between items-center z-20">
+                            <div class="flex items-center gap-3 font-bold text-lg">
+                                <i class="fa-solid fa-play text-gray-500"></i>
+                                <span>${formatNumber(game.visits)} Visits</span>
+                            </div>
+                        </div>
+                    `;
+                    gamesGrid.appendChild(card);
+                });
+
+                // Inject cumulative values into the recap stats bar
+                document.getElementById('total-ccu-text').innerText = formatNumber(totalCCU);
+                document.getElementById('total-visits-text').innerText = formatNumber(totalVisits);
+
+            } catch (error) {
+                console.error('Error fetching data from Roblox API:', error);
+                gamesGrid.innerHTML = '<p class="text-red-400 col-span-full">Failed to load live game data. Check the browser console.</p>';
+            }
+        }
+
+        // Run the fetch cycle when the page finishes loading
+        document.addEventListener('DOMContentLoaded', loadGameStats);
+    </script>
+</body>
+</html>
