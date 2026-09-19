@@ -209,14 +209,11 @@
 
     <!-- Roblox API Script -->
     <script>
-        // 1. Your deployed Cloudflare Worker's URL (see worker.js).
-        //    Replace this with the *.workers.dev URL you get after deploying.
-        const WORKER_URL = 'https://forged-loops-stats.atreyucode.workers.dev';
-
-        // 2. ADD YOUR ROBLOX PLACE IDS HERE (just the numeric ID, comma-separated below)
-        const placeIds = [
-            '6335988339', // Surgery Simulator
-        ];
+        // Game stats live in games-data.json, kept up to date by the
+        // "Update Roblox Game Stats" GitHub Action (see
+        // .github/workflows/update-stats.yml and scripts/fetch-stats.js).
+        // To add more games, edit PLACE_IDS in scripts/fetch-stats.js —
+        // nothing here needs to change.
 
         function formatNumber(num) {
             if (num >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -228,17 +225,17 @@
         async function loadGameStats() {
             const gamesGrid = document.getElementById('games-grid');
 
-            if (placeIds.length === 0) {
-                gamesGrid.innerHTML = '<p class="text-gray-400 col-span-full">No games added to the list yet.</p>';
-                return;
-            }
-
             try {
-                const res = await fetch(`${WORKER_URL}?places=${placeIds.join(',')}`);
-                if (!res.ok) throw new Error(`Worker responded with HTTP ${res.status}`);
+                // Cache-bust so a returning visitor doesn't get a stale copy
+                // of the JSON file from their browser cache or a CDN.
+                const res = await fetch(`games-data.json?t=${Date.now()}`);
+                if (!res.ok) throw new Error(`Could not load games-data.json (HTTP ${res.status})`);
                 const { data, error } = await res.json();
                 if (error) throw new Error(error);
-                if (!data || data.length === 0) throw new Error('No game data returned.');
+                if (!data || data.length === 0) {
+                    gamesGrid.innerHTML = '<p class="text-gray-400 col-span-full">Stats are still being generated — check back in a few minutes, or add games to scripts/fetch-stats.js.</p>';
+                    return;
+                }
 
                 let totalCCU = 0;
                 let totalVisits = 0;
@@ -295,7 +292,7 @@
                 document.getElementById('total-visits-text').innerText = formatNumber(totalVisits);
 
             } catch (error) {
-                console.error('Error fetching data from the stats Worker:', error);
+                console.error('Error loading games-data.json:', error);
                 gamesGrid.innerHTML = `<p class="text-red-400 col-span-full">Failed to load live game data: ${error.message} (check the browser console for details)</p>`;
             }
         }
