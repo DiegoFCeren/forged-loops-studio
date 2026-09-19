@@ -238,31 +238,33 @@
             }
 
             try {
-                // Use corsproxy to bypass browser restrictions on the official Roblox API
-                const proxy = "https://corsproxy.io/?";
                 const universeIds = [];
 
-                // 1. Convert Place IDs to Universe IDs (Auth-free endpoint)
+                // 1. Convert Place IDs to Universe IDs using a public proxy and auth-free endpoint
                 for (const placeId of placeIds) {
                     const uniUrl = `https://apis.roblox.com/universes/v1/places/${placeId}/universe`;
-                    const uniRes = await fetch(proxy + encodeURIComponent(uniUrl));
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(uniUrl)}`;
+                    
+                    const uniRes = await fetch(proxyUrl);
                     if (uniRes.ok) {
                         const uniData = await uniRes.json();
-                        if (uniData.universeId) universeIds.push(uniData.universeId);
+                        if (uniData.universeId) {
+                            universeIds.push(uniData.universeId);
+                        }
                     }
                 }
 
                 if (universeIds.length === 0) throw new Error("Could not find Universe IDs. Check your game links.");
 
-                // 2. Get CCU, Visits, and Name
-                const statsUrl = `https://games.roblox.com/v1/games?universeIds=${universeIds.join(',')}`;
-                const statsRes = await fetch(proxy + encodeURIComponent(statsUrl));
+                // 2. Get CCU, Visits, and Name using RoProxy
+                const statsUrl = `https://games.roproxy.com/v1/games?universeIds=${universeIds.join(',')}`;
+                const statsRes = await fetch(statsUrl);
                 if (!statsRes.ok) throw new Error("Failed to fetch game stats");
                 const statsData = await statsRes.json();
 
-                // 3. Get Thumbnails
-                const thumbsUrl = `https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeIds.join(',')}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`;
-                const thumbsRes = await fetch(proxy + encodeURIComponent(thumbsUrl));
+                // 3. Get Thumbnails using RoProxy
+                const thumbsUrl = `https://thumbnails.roproxy.com/v1/games/icons?universeIds=${universeIds.join(',')}&returnPolicy=PlaceHolder&size=512x512&format=Png&isCircular=false`;
+                const thumbsRes = await fetch(thumbsUrl);
                 if (!thumbsRes.ok) throw new Error("Failed to fetch thumbnails");
                 const thumbsData = await thumbsRes.json();
                 
