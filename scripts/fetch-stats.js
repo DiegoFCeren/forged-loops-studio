@@ -13,6 +13,7 @@ const path = require('path');
 
 const PLACE_IDS = [
   '6335988339', // Surgery Simulator
+  '107778070777162', // Steal an Egg
 ];
 
 async function fetchJson(url) {
