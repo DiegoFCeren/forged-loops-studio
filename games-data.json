@@ -1,9 +1,14 @@
 {
-  "updatedAt": "2026-10-03T22:26:24.067Z",
+  "updatedAt": "2026-10-04T01:52:57.067Z",
   "data": [
     {
       "placeId": "6335988339",
-      "error": "https://games.roblox.com/v1/games?universeIds=2343631272 -> HTTP 503"
+      "universeId": 2343631272,
+      "name": "Surgery Simulator [BETA]",
+      "playing": 0,
+      "visits": 12543,
+      "thumbnail": "https://tr.rbxcdn.com/180DAY-52326522774efe0d7cfdb94e46534678/512/512/Image/Png/noFilter",
+      "likePercent": 60
     }
   ]
 }
