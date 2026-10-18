@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-10-18T16:42:48.639Z",
+  "updatedAt": "2026-10-18T18:58:15.983Z",
   "data": [
     {
       "placeId": "6335988339",
       "universeId": 2343631272,
       "name": "Surgery Simulator [BETA]",
       "playing": 0,
-      "visits": 12624,
+      "visits": 12625,
       "thumbnail": "https://tr.rbxcdn.com/180DAY-52326522774efe0d7cfdb94e46534678/512/512/Image/Png/noFilter",
       "likePercent": 60
     }
